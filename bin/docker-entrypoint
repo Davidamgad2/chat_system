@@ -5,9 +5,67 @@ if [ -z "${LD_PRELOAD+x}" ] && [ -f /usr/lib/*/libjemalloc.so.2 ]; then
   export LD_PRELOAD="$(echo /usr/lib/*/libjemalloc.so.2)"
 fi
 
+# Function to check if a service is available
+service_available() {
+  local service=$1
+  local host=$2
+  local port=$3
+  local retries=12
+  local wait=5
+
+  case $service in
+    elasticsearch)
+      local url="http://${host}:${port}/_cat/health"
+      until curl -s "$url" > /dev/null; do
+        retries=$((retries - 1))
+        if [ $retries -le 0 ]; then
+          echo "Service $service at $url is not available"
+          exit 1
+        fi
+        echo "Waiting for $service at $url..."
+        sleep $wait
+      done
+      ;;
+    redis)
+      until redis-cli -h $host -p $port ping | grep -q PONG; do
+        retries=$((retries - 1))
+        if [ $retries -le 0 ]; then
+          echo "Service $service at $host:$port is not available"
+          exit 1
+        fi
+        echo "Waiting for $service at $host:$port..."
+        sleep $wait
+      done
+      ;;
+    mysql)
+      until mysqladmin ping -h $host --silent; do
+        retries=$((retries - 1))
+        if [ $retries -le 0 ]; then
+          echo "Service $service at $host:$port is not available"
+          exit 1
+        fi
+        echo "Waiting for $service at $host:$port..."
+        sleep $wait
+      done
+      ;;
+    *)
+      echo "Unknown service: $service"
+      exit 1
+      ;;
+  esac
+
+  echo "Service $service at $host:$port is up!"
+}
+
+# Check services
+service_available "elasticsearch" "${ELASTICSEARCH_HOST}" "${ELASTICSEARCH_PORT}"
+service_available "redis" "redis" "6379"
+service_available "mysql" "${DATABASE_HOST}" "3306"
+
 # If running the rails server then create or migrate existing database
 if [ "${1}" == "./bin/rails" ] && [ "${2}" == "server" ]; then
-  ./bin/rails db:prepare
+  bundle exec rails db:create
+  bundle exec rails db:migrate
 fi
 
 exec "${@}"

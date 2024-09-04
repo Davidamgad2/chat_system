@@ -21,12 +21,17 @@ group :development, :test do
 
   # Omakase Ruby styling [https://github.com/rails/rubocop-rails-omakase/]
   gem "rufo", require: false
+  gem "factory_bot_rails"
 end
 
 gem "rubocop-rails-omakase", require: false
 gem "mysql2"
-gem "elasticsearch-rails"
-gem "elasticsearch-model"
+gem "elasticsearch", "~> 7.10"
+gem "elasticsearch-model", "~> 7.0"
+gem "elasticsearch-rails", "~> 7.0"
 gem "sidekiq"
+gem "sidekiq-scheduler"
 gem "redis"
 gem "rspec-rails", group: [ :development, :test ]
+gem "rswag"
+gem "active_model_serializers"

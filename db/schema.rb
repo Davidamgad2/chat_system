@@ -10,29 +10,29 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2024_09_01_184030) do
-  create_table "applications", charset: "latin1", force: :cascade do |t|
+ActiveRecord::Schema[7.2].define(version: 2024_09_03_100903) do
+  create_table "applications", charset: "utf8", force: :cascade do |t|
     t.string "name"
     t.string "token"
-    t.integer "chats_count"
+    t.integer "chats_count", default: 0
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["token"], name: "index_applications_on_token"
   end
 
-  create_table "chats", charset: "latin1", force: :cascade do |t|
+  create_table "chats", charset: "utf8", force: :cascade do |t|
     t.bigint "application_id", null: false
-    t.integer "number"
-    t.integer "messages_count"
+    t.integer "number", default: 1
+    t.integer "messages_count", default: 0
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["application_id"], name: "index_chats_on_application_id"
     t.index ["number"], name: "index_chats_on_number"
   end
 
-  create_table "messages", charset: "latin1", force: :cascade do |t|
+  create_table "messages", charset: "utf8", force: :cascade do |t|
     t.bigint "chat_id", null: false
-    t.integer "number"
+    t.integer "number", default: 1
     t.text "body"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false

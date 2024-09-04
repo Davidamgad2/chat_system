@@ -1,0 +1,22 @@
+development:
+  adapter: redis
+  url: redis://localhost:6379/1
+  channel_prefix: chat_system_development
+
+test:
+  adapter: async
+
+production:
+  adapter: redis
+  url: redis://localhost:6379/1
+  channel_prefix: <%= ENV.fetch("REDIS_CHANNEL_PREFIX") { "chat_system" } %>
+
+:concurrency: 3
+:queues:
+  - default
+:scheduler:
+  :schedule:
+    update_counts_worker:
+      cron: "*/30 * * * *" # Runs every 30 minutes
+      class: "UpdateCountsWorker"
+      queue: default

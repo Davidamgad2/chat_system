@@ -2,14 +2,14 @@ default: &default
   adapter: mysql2
   encoding: utf8
   pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
-  username: root
-  password: password
-  host: 127.0.0.1  # Updated to point to the Docker service name
+  username: <%= ENV['DATABASE_USERNAME'] { root }%>
+  password: <%= ENV['DATABASE_PASSWORD'] { password }%>
+  host: <%= ENV['DATABASE_HOST'] { db }%>  # Updated to point to the Docker service name
   port: 3306
 
 development:
   <<: *default
-  database: chat_system_development
+  database: chat_system
 
 test:
   adapter: sqlite3
@@ -19,7 +19,7 @@ test:
 
 production:
   <<: *default
-  database: chat_system_production
+  database: <%= ENV['DATABASE_NAME'] { chat_system }%>
   username: <%= ENV['DATABASE_USERNAME'] { root }%>
   password: <%= ENV['DATABASE_PASSWORD'] { password }%>
   host: <%= ENV['DATABASE_HOST'] { db }%>

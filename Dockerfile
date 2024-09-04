@@ -7,7 +7,11 @@
 # Make sure RUBY_VERSION matches the Ruby version in .ruby-version
 ARG RUBY_VERSION=3.2.3
 FROM docker.io/library/ruby:$RUBY_VERSION-slim AS base
+# Add this line at the beginning to define build argument
+ARG SECRET_KEY_BASE=1234567890
 
+# Ensure the build argument is available as an environment variable
+ENV SECRET_KEY_BASE=${SECRET_KEY_BASE}
 # Rails app lives here
 WORKDIR /rails
 
@@ -15,6 +19,8 @@ WORKDIR /rails
 RUN apt-get update -qq && \
     apt-get install --no-install-recommends -y curl libjemalloc2 libvips sqlite3 && \
     rm -rf /var/lib/apt/lists /var/cache/apt/archives
+    
+RUN apt-get update -qq && apt-get install -y build-essential libmariadb-dev-compat libmariadb-dev redis-tools default-mysql-client
 
 # Set production environment
 ENV RAILS_ENV="production" \
@@ -41,9 +47,6 @@ COPY . .
 
 # Precompile bootsnap code for faster boot times
 RUN bundle exec bootsnap precompile app/ lib/
-
-
-
 
 # Final stage for app image
 FROM base
